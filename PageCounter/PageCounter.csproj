@@ -87,6 +87,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConsoleUtils\DirectoryOperations.cs" />
     <Compile Include="ConsoleUtils\FileUtils.cs" />
     <Compile Include="FileManager.cs" />
     <Compile Include="Program.cs" />
