@@ -5,11 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using UglyToad.PdfPig;
 
 namespace PageCounter.ConsoleUtils
 {
-    internal class FileUtils
+    internal class FileOperations
     {
+        private static string ErrorLogPath = @"C:\MFErrorLog";
+
         /// <summary>
         /// Returns a FileInfo[] object of the files in the specified location if the directory exists.
         /// </summary>
@@ -18,7 +21,7 @@ namespace PageCounter.ConsoleUtils
         /// <exception cref="DirectoryNotFoundException"></exception>
         public static FileInfo[] GetFiles(string path)
         {
-            DirectoryInfo directoryInfo = new DirectoryInfo(path);
+            DirectoryInfo directoryInfo = DirectoryOperations.CreateDirectory(path);
 
             if (false == directoryInfo.Exists)
             {
@@ -28,15 +31,27 @@ namespace PageCounter.ConsoleUtils
             return directoryInfo.GetFiles();
         }
 
-        public static int GetNumberOfPages(string fileName)
+        public static int GetNumberOfPages(string filePath)
         {
-            using (StreamReader stream = new StreamReader(File.OpenRead(fileName)))
-            {
-                Regex regex = new Regex(@"/Type\s*/Page[^s]");
-                MatchCollection matches = regex.Matches(stream.ReadToEnd());
+            PdfDocument document = PdfDocument.Open(filePath);
+            int pages = document.NumberOfPages;
+            document.Dispose();
 
-                return matches.Count;
-            }
+            return pages;
+        }
+
+        public static void LogError(Exception exception)
+        {
+            // Create directory for the error log file
+            DirectoryInfo TempDirectory = DirectoryOperations.CreateDirectory(ErrorLogPath);
+
+            string fullPath = $@"{ErrorLogPath}\ErrorLog.txt";
+
+            File.Create(fullPath).Close();
+
+            File.WriteAllText(fullPath, $@"{exception.Message}
+{exception.StackTrace}");
+
         }
     }
 }
